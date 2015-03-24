@@ -1,0 +1,22 @@
+{
+  "name": "trainspot",
+  "version": "1.0.0",
+  "description": "REST-ful api for trainspot app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JoostvdB94/TrainSpotWeb.git"
+  },
+  "author": "Joost van den Brandt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JoostvdB94/TrainSpotWeb/issues"
+  },
+  "homepage": "https://github.com/JoostvdB94/TrainSpotWeb",
+  "dependencies": {
+    "express": "^4.12.3"
+  }
+}
