@@ -14,7 +14,6 @@
     "jade": "~1.9.1",
     "mongoose": "^3.8.25",
     "morgan": "~1.5.1",
-    "node-pushserver": "*",
     "node-schedule": "^0.2.6",
     "request": "*",
     "serve-favicon": "~2.2.0"

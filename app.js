@@ -13,10 +13,10 @@ var app = express();
 
 
 var http = require('http').Server(app);
-http.setMaxHeaderLength(0);
 http.listen(process.env.PORT, function() {
     console.log('listening on: ' + process.env.PORT);
 });
+http.setMaxHeaderLength(0);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
