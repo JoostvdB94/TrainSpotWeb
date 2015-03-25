@@ -9,8 +9,8 @@ var image = new Schema({
 var spot = new Schema({
     name    		: { type: String, required : true },
     description 	: { type: String },
-    latitude 		: { type: String, required : true },
-    longitude 		: { type: String, required : true },
+    latitude 		: { type: Double, required : true },
+    longitude 		: { type: Double, required : true },
     image			: { type: Schema.Types.ObjectId, ref: 'image', required : true },
     owner			: { type: Schema.Types.ObjectId, ref: 'user' },			
 });
@@ -23,8 +23,8 @@ var user = new Schema({
 var location = new Schema({
 	name 		: { type: String, required : true },
 	type 		: { type: String, required : true },
-    latitude 		: { type: String, required : true },
-    longitude 		: { type: String, required : true },
+    latitude 		: { type: Double, required : true },
+    longitude 		: { type: Double, required : true },
 });
 
 mongoose.model( 'image', image );
