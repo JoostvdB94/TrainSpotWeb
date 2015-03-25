@@ -2,24 +2,22 @@ var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 
 var image = new Schema({
-    name    	: { type: String, required : true },
     extension 	: { type: String, required : true },
     data 		: { type: String, required : true },
 });
 
 var spot = new Schema({
     name    		: { type: String, required : true },
-    description 	: { type: String, required : true },
+    description 	: { type: String },
     latitude 		: { type: String, required : true },
     longitude 		: { type: String, required : true },
-    image			: { type: Schema.Types.ObjectId, ref: 'image' },
-    owner			: { type: Schema.Types.ObjectId, ref: 'user' , required : true},			
+    image			: { type: Schema.Types.ObjectId, ref: 'image', required : true },
+    owner			: { type: Schema.Types.ObjectId, ref: 'user' },			
 });
 
 var user = new Schema({
     name    	: { type: String, required : true },
     password 	: { type: String, required : true },
-    spots 		: [{ type: Schema.Types.ObjectId, ref: 'spot' }]
 });
 
 var location = new Schema({
