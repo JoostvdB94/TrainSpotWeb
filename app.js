@@ -16,7 +16,6 @@ var http = require('http').Server(app);
 http.listen(process.env.PORT, function() {
     console.log('listening on: ' + process.env.PORT);
 });
-http.setMaxHeaderLength(0);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -39,6 +38,31 @@ app.use(function(req, res, next) {
 
 app.use('/', routes);
 app.use('/api',api);
+
+
+/*var CronJob = require('cron').CronJob;
+
+var job = new CronJob({
+  cronTime: '1 * * * * *',
+  onTick: function() {
+    var req = http.get("http://webservices.ns.nl/ns-api-stations-v2", function(res) {
+      var xml = '';
+      res.on('data', function(chunk) {
+        xml += chunk;
+      });
+
+      res.on('end', function() {
+        console.log(xml)
+      });
+    });
+
+    req.on('error', function(err) {
+      console.log(err);
+    });
+  },
+  start: true
+});*/
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

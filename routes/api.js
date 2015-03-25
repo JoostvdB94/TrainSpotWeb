@@ -1,17 +1,14 @@
 var express = require('express');
 var router = express.Router();
+var app = express();
 var mongoose = require('mongoose');
 
-var schedule = require('node-schedule');
+var http = require('http');
 
 var Image = mongoose.model('image');
 var Spot = mongoose.model('spot');
 var User = mongoose.model('user');
 var Location = mongoose.model('location');
-
-schedule.scheduleJob('1 * * * *', function(){
-    console.log('The answer to life, the universe, and everything!');
-});
 
 router.post('/images', function(req, res, next) {
 	var image = new Image({
@@ -217,14 +214,14 @@ router.get("/locations", function (req, res, next) {
 });
 
 router.delete("/locations/:id", function (req, res, next) {
-      Location.findById( req.params.id, function ( err, location ){
-        if(err) {
-            res.statusCode = 404;
-            res.json(err);
-        } 
-        if(location != null) {
-          location.remove( function ( err, location ){
-          res.json(location);
+  Location.findById( req.params.id, function ( err, location ){
+    if(err) {
+      res.statusCode = 404;
+      res.json(err);
+    } 
+    if(location != null) {
+      location.remove( function ( err, location ){
+        res.json(location);
       });
     }
   });
@@ -232,6 +229,36 @@ router.delete("/locations/:id", function (req, res, next) {
 
 
 
+
+
+
+
+
+
+
+
+
+router.get('/data', function(req, res, next) {
+  var options = {
+    host: 'webservices.ns.nl',
+    path: '/ns-api-stations-v2',
+    auth: "dannyvdbiezen@outlook.com" + ':' + "XnUYCIQtPEjlnz0BUztek8jqMgpxm4_Nvk1yqx7C59sEzjy71yZz2g"
+  };
+  var req = http.get(options, function(resp) {
+      var xml = '';
+      resp.on('data', function(chunk) {
+        xml += chunk;
+      });
+
+      resp.on('end', function() {
+        console.log(xml)
+      });
+    });
+
+    req.on('error', function(err) {
+      console.log(err);
+    });
+});
 
 
 module.exports = router;
