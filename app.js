@@ -13,7 +13,7 @@ var app = express();
 
 
 var http = require('http').Server(app);
-
+http.setMaxHeaderLength(0);
 http.listen(process.env.PORT, function() {
     console.log('listening on: ' + process.env.PORT);
 });
