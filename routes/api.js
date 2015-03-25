@@ -3,7 +3,6 @@ var router = express.Router();
 var mongoose = require('mongoose');
 var Image = mongoose.model('image');
 
-
 router.post('/images', function(req, res, next) {
 	var image = new Image({
       name        : req.body.name,
@@ -29,6 +28,32 @@ router.get('/images/:id', function(req, res, next) {
     res.contentType(image.extension);
     var buffer = new Buffer(image.data, 'base64'); 
     res.send(buf);
+  });
+});
+
+router.get("/images", function (req, res, next) {
+    Image.find( {}, function ( err, images, count ){
+      if(err) {
+        res.json(err);
+      }
+      if(count === 0) {
+        res.json({"Message" : "No images found"})
+      }
+      res.json(images);
+  });
+});
+
+router.delete("/images/:id", function (req, res, next) {
+      Image.findById( req.params.id, function ( err, image ){
+        if(err) {
+            res.statusCode = 404;
+            res.json(err);
+        } 
+        if(image != null) {
+          image.remove( function ( err, image ){
+          res.json(image);
+      });
+    }
   });
 });
 
