@@ -40,6 +40,31 @@ app.use(function(req, res, next) {
 app.use('/', routes);
 app.use('/api',api);
 
+
+/*var CronJob = require('cron').CronJob;
+
+var job = new CronJob({
+  cronTime: '1 * * * * *',
+  onTick: function() {
+    var req = http.get("http://webservices.ns.nl/ns-api-stations-v2", function(res) {
+      var xml = '';
+      res.on('data', function(chunk) {
+        xml += chunk;
+      });
+
+      res.on('end', function() {
+        console.log(xml)
+      });
+    });
+
+    req.on('error', function(err) {
+      console.log(err);
+    });
+  },
+  start: true
+});*/
+
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
