@@ -1,0 +1,26 @@
+//
+   Created by Joost on 25-3-2015.
+extends ../layout
+block content
+    h1 Gebruikers
+    table
+        tr
+            th Username
+            th Actions
+        each user in users
+            tr
+                td #{user.username}
+                td
+                    a(href="/crud/users/delete/#{user._id}") X
+                    span(style="margin-left:5px;")
+                    a(href="/crud/users/edit/#{user._id}") E
+        br
+        tr
+            td(style="vertical-align:top") Gebruiker toevoegen
+            td(colspan="2")
+                form(action="/crud/users/new",method="post")
+                    input(type="text",name="username",placeholder="Gebruikersnaam")
+                    br
+                    input(type="password",name="password",placeholder="Wachtwoord")
+                    br
+                    input(type="submit",value="Aanmaken")

@@ -20,11 +20,15 @@ var user = new Schema({
     password 	: { type: String, required : true },
 });
 
+user.methods.validPassword = function(password){
+    return this.password == password;
+};
+
 var location = new Schema({
 	name 		: { type: String, required : true },
 	type 		: { type: String, required : true },
     latitude 		: { type: Number, required : true },
-    longitude 		: { type: Number, required : true },
+    longitude 		: { type: Number, required : true }
 });
 
 mongoose.model( 'image', image );

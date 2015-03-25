@@ -1,0 +1,31 @@
+//
+   Created by Joost on 25-3-2015.
+extends ../layout
+block content
+    h1 Spots
+    table
+        tr
+            th Naam
+            th Afbeelding
+            th Actions
+        each spot in spots
+            tr
+                td #{spot.name}
+                td
+                    img(src="data:#{spot.image.extension};base64,#{spot.image.data}",style="max-width:100px;")
+                td
+                    a(href="/crud/users/delete/#{spot._id}") X
+                    span(style="margin-left:5px;")
+                    a(href="/crud/users/edit/#{spot._id}") E
+        br
+        tr
+            td(style="vertical-align:top") Gebruiker toevoegen
+            td(colspan="2")
+                form(action="/crud/users/new",method="post")
+                    input(type="text",name="username",placeholder="Gebruikersnaam")
+                    br
+                    input(type="password",name="password",placeholder="Wachtwoord")
+                    br
+                    input(type="submit",value="Aanmaken")
+
+    script.
