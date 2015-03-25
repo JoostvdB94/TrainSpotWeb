@@ -16,7 +16,7 @@ var http = require('http').Server(app);
 http.listen(process.env.PORT, function() {
     console.log('listening on: ' + process.env.PORT);
 });
-http.setMaxHeaderLength(0);
+http.setMaxHeaderLength( 1e7 );
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
