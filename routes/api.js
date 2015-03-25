@@ -1,9 +1,17 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
+
+var schedule = require('node-schedule');
+
 var Image = mongoose.model('image');
 var Spot = mongoose.model('spot');
 var User = mongoose.model('user');
+var Location = mongoose.model('location');
+
+schedule.scheduleJob('1 * * * *', function(){
+    console.log('The answer to life, the universe, and everything!');
+});
 
 router.post('/images', function(req, res, next) {
 	var image = new Image({
@@ -124,9 +132,6 @@ router.get("/spots", function (req, res, next) {
     if(err) {
       res.json(err);
     }
-    if(count === 0) {
-      res.json({"Message" : "No spots found"})
-    }
     res.json(spot);
   }).populate('image owner');
 });
@@ -144,5 +149,89 @@ router.delete("/spots/:id", function (req, res, next) {
     }
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+router.post('/locations', function(req, res, next) {
+  var location = new Location({
+    name      : req.body.name,
+    type      : req.body.type,
+    latitude  : req.body.latitude,
+    longitude : req.body.longitude
+  });
+
+  location.save( function( err, location, count ){
+    if(err) {
+      res.statusCode = 404;
+      res.json(err);
+    }
+    res.json(location);
+  });
+});
+
+router.get('/locations/:id', function(req, res, next) {
+  Location.findById(req.params.id, function (err, location) {
+    if(err) {
+      res.statusCode = 404;
+      res.json(err);
+    }
+    res.json(location);
+  });
+});
+
+router.get("/locations", function (req, res, next) {
+  Location.find({}, function ( err, location, count ){
+    if(err) {
+      res.json(err);
+    }
+    res.json(location);
+  });
+});
+
+router.delete("/locations/:id", function (req, res, next) {
+      Location.findById( req.params.id, function ( err, location ){
+        if(err) {
+            res.statusCode = 404;
+            res.json(err);
+        } 
+        if(location != null) {
+          location.remove( function ( err, location ){
+          res.json(location);
+      });
+    }
+  });
+});
+
+
+
+
 
 module.exports = router;
