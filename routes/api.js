@@ -112,21 +112,22 @@ router.get('/spots/:id', function(req, res, next) {
       res.statusCode = 404;
       res.json(err);
     }
-    //res.contentType(spot.extension); code om een image te laten zien
-    //var buffer = new Buffer(spot.data, 'base64'); 
-    res.send(buf);
   });
 });
 
 router.get("/spots", function (req, res, next) {
-    Spot.find( {}, function ( err, spot, count ){
-      if(err) {
-        res.json(err);
-      }
-      if(count === 0) {
-        res.json({"Message" : "No spots found"})
-      }
-      res.json(spot);
+  var criteria = {};
+  if(req.param('owner')) {
+    criteria = { owner: req.param('owner')} 
+  }
+  Spot.find( {}, function ( err, spot, count ){
+    if(err) {
+      res.json(err);
+    }
+    if(count === 0) {
+      res.json({"Message" : "No spots found"})
+    }
+    res.json(spot);
   }).populate('image owner');
 });
 
