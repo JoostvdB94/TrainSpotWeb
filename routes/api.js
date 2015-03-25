@@ -28,7 +28,7 @@ router.get('/images/:id', function(req, res, next) {
     }
     res.contentType(image.extension);
     var buffer = new Buffer(image.data, 'base64'); 
-    res.send(buf);
+    res.send(buffer);
   });
 });
 
