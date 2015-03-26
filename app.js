@@ -1,24 +1,27 @@
 require( './configuration/db' );
 var express = require('express');
+var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var passport = require('passport');
-var routes = require('./routes/index');
-var api = require('./routes/api');
-var crud = require('./routes/crud');
 var LocalStrategy = require('passport-local').Strategy;
 var mongoose = require('mongoose');
 var flash = require('connect-flash');
 var session = require('express-session');
 var connectRoles =require('connect-roles');
 var User = mongoose.model('user');
+var routes = require('./routes/index')(express.Router());
+var api = require('./routes/api')(express.Router(),io);
+var crud = require('./routes/crud')(express.Router());
 
-
-var app = express();
-var http = require('http').Server(app);
+io.on('connection',function(socket){
+    console.log("user is connected");
+});
 http.listen(process.env.PORT || 1000, function() {
     console.log('listening on: ' + process.env.PORT||1000);
 });
@@ -53,6 +56,7 @@ passport.deserializeUser(function(id,done){
        done(err,user);
    });
 });
+
 var roles = new connectRoles({
    failureHandler: function(req,res,action){
        res.send('Toegang geweigerd. U heeft geen toegang tot '+ action);
@@ -88,7 +92,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.use('/', routes);
+app.use('/',routes);
 app.use('/api',api);
 app.use('/crud',roles.can('access crud'),crud);
 
@@ -148,6 +152,5 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
-
 
 module.exports = app;
