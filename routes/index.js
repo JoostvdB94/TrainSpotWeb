@@ -1,17 +1,17 @@
-var express = require('express');
-var app = express();
-var router = express.Router();
 var mongoose = require('mongoose');
 var passport = require('passport');
 
-router.get('/',function(req, res, next){
-    res.render('index');
-});
+module.exports = function(router) {
 
-router.post('/login', passport.authenticate('local',{successRedirect:'/crud',failureRedirect:'/fail'}));
+    router.get('/', function (req, res, next) {
+        res.render('index');
+    });
 
-router.get('/fail',function(req,res,next){
-    res.send("Auth error");
-});
+    router.post('/login', passport.authenticate('local', {successRedirect: '/crud', failureRedirect: '/fail'}));
 
-module.exports = router;
+    router.get('/fail', function (req, res, next) {
+        res.send("Auth error");
+    });
+
+    return router;
+};

@@ -3,7 +3,7 @@
 extends ../layout
 block content
     h1 Spots
-    table
+    table(id="spots")
         tr
             th Naam
             th Afbeelding
@@ -14,18 +14,15 @@ block content
                 td
                     img(src="data:#{spot.image.extension};base64,#{spot.image.data}",style="max-width:100px;")
                 td
-                    a(href="/crud/users/delete/#{spot._id}") X
+                    a(href="/crud/spots/delete/#{spot._id}") X
                     span(style="margin-left:5px;")
-                    a(href="/crud/users/edit/#{spot._id}") E
-        br
-        tr
-            td(style="vertical-align:top") Gebruiker toevoegen
-            td(colspan="2")
-                form(action="/crud/users/new",method="post")
-                    input(type="text",name="username",placeholder="Gebruikersnaam")
-                    br
-                    input(type="password",name="password",placeholder="Wachtwoord")
-                    br
-                    input(type="submit",value="Aanmaken")
+                    a(href="/crud/spots/edit/#{spot._id}") E
+
 
     script.
+        socket.on("spot added",function(spot){
+            console.log("A spot was added! " + spot);
+           $('#spots').find('tbody').append('<tr><td>'+spot.name+'</td><td><img style="max-width:100px;" src="data:'+spot.image.extension+';base64,'+spot.image.data+'"/></td><td><a href="/crud/spots/delete/'+spot._id+'">X</a><span style="margin-left:5px;"></span><a href="/crud/spots/edit/'+spot._id+'">E</a> </td></tr>')
+        });
+
+
