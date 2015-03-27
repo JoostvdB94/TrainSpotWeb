@@ -26,7 +26,13 @@ http.listen(process.env.PORT || 1000, function() {
     console.log('listening on: ' + process.env.PORT||1000);
 });
 //http.setMaxHeaderLength( 1e7 );
-
+//enable cors for cordova
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header("Access-Control-Allow-Headers", "Origin, Authorization, X-Requested-With, Content-Type, Accept");
+    next();
+});
 app.use(session({ secret: 'login' }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -82,16 +88,6 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-
-
-//enable cors for cordova
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
-
 app.use('/',routes);
 app.use('/api',api);
 app.use('/crud',roles.can('access crud'),crud);
