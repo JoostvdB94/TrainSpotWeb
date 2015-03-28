@@ -1,62 +1,14 @@
 var mongoose = require('mongoose');
+var http = require('http');
+
 var Image = mongoose.model('image');
 var Spot = mongoose.model('spot');
 var User = mongoose.model('user');
 var Location = mongoose.model('location');
 
 module.exports = function(router,io) {
-    router.post('/images', function (req, res, next) {
-        var image = new Image({
-            extension: req.body.extension,
-            data: req.body.data
-        });
 
-        image.save(function (err, image, count) {
-            if (err) {
-                res.statusCode = 404;
-                res.json(err);
-            }
-            res.json(image);
-        });
-    });
-
-    router.get('/images/:id', function (req, res, next) {
-        Image.findById(req.params.id, function (err, image) {
-            if (err) {
-                res.statusCode = 404;
-                res.json(err);
-            }
-            res.contentType(image.extension);
-            var buffer = new Buffer(image.data, 'base64');
-            res.send(buffer);
-        });
-    });
-
-    router.get("/images", function (req, res, next) {
-        Image.find({}, function (err, images, count) {
-            if (err) {
-                res.json(err);
-            }
-            if (count === 0) {
-                res.json({"Message": "No images found"})
-            }
-            res.json(images);
-        });
-    });
-
-    router.delete("/images/:id", function (req, res, next) {
-        Image.findById(req.params.id, function (err, image) {
-            if (err) {
-                res.statusCode = 404;
-                res.json(err);
-            }
-            if (image != null) {
-                image.remove(function (err, image) {
-                    res.json(image);
-                });
-            }
-        });
-    });
+    
 
 
     router.post('/spots', function (req, res, next) {
@@ -102,9 +54,10 @@ module.exports = function(router,io) {
     router.get("/spots", function (req, res, next) {
         var criteria = {};
         if (req.param('owner')) {
-            criteria = {owner: req.param('owner')}
+            criteria = {owner: req.param('owner') }
         }
-        Spot.find({}, function (err, spot, count) {
+        
+        Spot.find(criteria, function (err, spot, count) {
             if (err) {
                 res.json(err);
             }
@@ -190,14 +143,88 @@ module.exports = function(router,io) {
                 xml += chunk;
             });
 
-            resp.on('end', function () {
-                console.log(xml)
-            });
+        resp.on('end', function () {
+          xml2js = require('xml2js');
+          var parser = new xml2js.Parser({explicitArray : false});
+          parser.addListener('end', function(result) {
+            res.json(addLocationsToSchema(result));
+          });
+          parser.parseString(xml);
+          
+        });
+      });
+
+      req.on('error', function (err) {
+        console.log(err);
+      });
+    });
+
+  function addLocationsToSchema(json) {
+    var locations = [];
+    for(var station in json.Stations.Station){
+      var result = json.Stations.Station[station]
+      var location = new Location({
+        name: result.Namen.Lang,
+        type: result.Type,
+        latitude: result.Lat,
+        longitude: result.Lon
+      });
+      locations.push(location);
+    }
+    return locations;
+  }
+
+  router.post('/images', function (req, res, next) {
+        var image = new Image({
+            extension: req.body.extension,
+            data: req.body.data
         });
 
-        req.on('error', function (err) {
-            console.log(err);
+        image.save(function (err, image, count) {
+            if (err) {
+                res.statusCode = 404;
+                res.json(err);
+            }
+            res.json(image);
         });
     });
-    return router;
+
+    router.get('/images/:id', function (req, res, next) {
+        Image.findById(req.params.id, function (err, image) {
+            if (err) {
+                res.statusCode = 404;
+                res.json(err);
+            }
+            res.contentType(image.extension);
+            var buffer = new Buffer(image.data, 'base64');
+            res.send(buffer);
+        });
+    });
+
+    router.get("/images", function (req, res, next) {
+        Image.find({}, function (err, images, count) {
+            if (err) {
+                res.json(err);
+            }
+            if (count === 0) {
+                res.json({"Message": "No images found"})
+            }
+            res.json(images);
+        });
+    });
+
+    router.delete("/images/:id", function (req, res, next) {
+        Image.findById(req.params.id, function (err, image) {
+            if (err) {
+                res.statusCode = 404;
+                res.json(err);
+            }
+            if (image != null) {
+                image.remove(function (err, image) {
+                    res.json(image);
+                });
+            }
+        });
+    }); 
+  return router;
 };
