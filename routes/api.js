@@ -107,6 +107,7 @@ module.exports = function (router, io) {
                     res.json(err);
                 } else {
                     res.json(spot);
+                    //verstuur pushnotifcation naar iedereen(woohoo);
                     io.emit('spot added', spot);
                 }
             });
@@ -171,49 +172,6 @@ module.exports = function (router, io) {
         });
     });
 
-    //aparte get of in de locations inbouwen, overleggen met joost, locations/nearby zodat de api een /resource/etc heeft(niet mooi)
-    router.get('/locations/nearby', function (req, res, next) {
-        if (req.query.latitude && req.query.longitude) {
-            var range = 50;
-            if(req.query.range) {
-                range = req.query.range;
-            }
-            Location.find({}, function (err, locations) {
-                if (err) {
-                    res.statusCode = 404;
-                    res.json(err);
-                } else {
-                    var locationsInRange = [];
-                    for (var location in locations) {
-                        var distance = calculateLatLonDistance(req.query.latitude, req.query.longitude, locations[location].latitude, locations[location].longitude)
-                        if(distance <= range) {
-                            locationsInRange.push(locations[location]);
-
-                        }
-                    }
-                    res.json(locationsInRange);
-                }
-            });
-        } else {
-            res.json({ error : "Latitude and longitude parameters not found"});
-        }
-    });
-
-    function calculateLatLonDistance(lat1, lon1, lat2, lon2) { 
-        var radlat1 = Math.PI * lat1/180;
-        var radlat2 = Math.PI * lat2/180;
-        var radlon1 = Math.PI * lon1/180;
-        var radlon2 = Math.PI * lon2/180;
-        var theta = lon1-lon2;
-        var radtheta = Math.PI * theta/180;
-        var distance = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
-        distance = Math.acos(distance)
-        distance = distance * 180/Math.PI;
-        distance = distance * 60 * 1.1515;
-        distance = distance * 1.609344;
-        return distance;
-    }
-
     router.post('/locations', function (req, res, next) {
         var location = new Location({
             name: req.body.name,
@@ -244,14 +202,62 @@ module.exports = function (router, io) {
     });
 
     router.get("/locations", function (req, res, next) {
-        Location.find({}, function (err, location, count) {
-            if (err) {
-                res.json(err);
-            } else {
-               res.json(location); 
-            }  
-        });
+        if (req.query.latitude && req.query.longitude) {
+            var range = 50;
+            if(req.query.range) {
+                range = req.query.range;
+            }
+            var limit = 0;
+            if(req.query.limit) {
+                limit = req.query.limit;
+            }
+            Location.find({}, function (err, locations) {
+                if (err) {
+                    res.statusCode = 404;
+                    res.json(err);
+                } else {
+                    var locationsInRange = [];
+                    for (var location in locations) {
+                        var distance = calculateLatLonDistance(req.query.latitude, req.query.longitude, locations[location].latitude, locations[location].longitude)
+                        if(distance <= range) {
+                            locationWithDistance = locations[location].toObject();
+                            locationWithDistance.distance = Math.ceil(distance);
+                            locationsInRange.push(locationWithDistance);
+                        }
+                    }
+                    locationsInRange.sort(function(a,b) { return a.distance - b.distance } );
+                    if(limit > 0) {
+                        res.json(locationsInRange.slice(0,limit));
+                    } else {
+                        res.json(locationsInRange);
+                    }
+                }
+            });
+        } else {
+            Location.find({}, function (err, location, count) {
+                if (err) {
+                    res.json(err);
+                } else {
+                   res.json(location); 
+                }  
+            });
+        }
     });
+
+    function calculateLatLonDistance(lat1, lon1, lat2, lon2) { 
+        var radlat1 = Math.PI * lat1/180;
+        var radlat2 = Math.PI * lat2/180;
+        var radlon1 = Math.PI * lon1/180;
+        var radlon2 = Math.PI * lon2/180;
+        var theta = lon1-lon2;
+        var radtheta = Math.PI * theta/180;
+        var distance = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+        distance = Math.acos(distance)
+        distance = distance * 180/Math.PI;
+        distance = distance * 60 * 1.1515;
+        distance = distance * 1.609344;
+        return distance;
+    }
 
     router.delete("/locations/:id", function (req, res, next) {
         Location.findById(req.params.id, function (err, location) {
