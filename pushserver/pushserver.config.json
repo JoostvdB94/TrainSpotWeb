@@ -1,0 +1,9 @@
+{
+    "webPort": 8000,
+ 
+    "mongodbUrl": "mongodb://trainspot:TrainSpot@dbh46.mongolab.com:27467/trainspot_push",
+ 
+    "gcm": {
+        "apiKey": "AIzaSyCCqFQVwWKaucv2I4IQacPGPS0eN_J5GLs"
+    }
+}

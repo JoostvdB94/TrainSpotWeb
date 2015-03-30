@@ -19,6 +19,10 @@ var User = mongoose.model('user');
 var routes = require('./routes/index')(express.Router());
 var api = require('./routes/api')(express.Router(), io);
 var crud = require('./routes/crud')(express.Router());
+pushserver = require('node-pushserver');
+
+var spawn = require('child_process').spawn;
+var prc = spawn('node',  ['./node_modules/node-pushserver/bin/pushserver.js','-c','./pushserver/pushserver.config.json']);
 
 io.on('connection', function(socket) {
     console.log("user is connected");
@@ -26,7 +30,7 @@ io.on('connection', function(socket) {
 http.listen(process.env.PORT || 1000, function() {
     console.log('listening on: ' + process.env.PORT || 1000);
 });
-//http.setMaxHeaderLength( 1e7 );
+
 app.use(cors());
 app.use(session({
     secret: 'login'
@@ -102,7 +106,7 @@ app.use('/api', api);
 //app.use('/api/images', require('./routes/images.js')(express.router()))
 app.use('/crud', roles.can('access crud'), crud);
 
-
+ 
 
 
 
@@ -136,5 +140,23 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
+
+
+
+/*Code om Pushserver te stoppen als deze NodeJS instance wordt gestopt (LATEN STAAN)*/
+prc.stdout.on('data', function(data) {
+    console.log(data.toString());
+});
+
+prc.on('close', function (code) {
+    sys.puts('process exit code ' + code);
+    prc.kill('SIGTERM');
+});
+
+prc.on('exit', function(code) {
+    sys.puts('About to exit with code:', code);
+    prc.kill('SIGTERM');
+});
+/*  Eind stoppen pushserver */
 
 module.exports = app;
