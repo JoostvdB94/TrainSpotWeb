@@ -1,14 +1,85 @@
 var mongoose = require('mongoose');
 var http = require('http');
-
 var Image = mongoose.model('image');
+var CronJob = require('cron').CronJob;
 var Spot = mongoose.model('spot');
 var User = mongoose.model('user');
 var Location = mongoose.model('location');
 
-module.exports = function(router,io) {
+var job = new CronJob({
+    cronTime: '1 * * * * *',
+    onTick: function () {
+        updateLocations();
+    },
+    start: true
+});
 
-    
+
+function updateLocations() {
+        var options = {
+            host: 'webservices.ns.nl',
+            path: '/ns-api-stations-v2',
+            auth: "dannyvdbiezen@outlook.com" + ':' + "XnUYCIQtPEjlnz0BUztek8jqMgpxm4_Nvk1yqx7C59sEzjy71yZz2g"
+        };
+        var req = http.get(options, function (resp) {
+            var xml = '';
+            resp.on('data', function (chunk) {
+                xml += chunk;
+            });
+
+            resp.on('end', function () {
+                xml2js = require('xml2js');
+                var parser = new xml2js.Parser({
+                    explicitArray: false
+                });
+                parser.addListener('end', function (result) {
+                    updateLocationDatabase(transformJsonToLocations(result));
+                });
+                parser.parseString(xml);
+
+            });
+        });
+
+        req.on('error', function (err) {
+            console.log(err);
+        });
+    }
+
+    function updateLocationDatabase(data) {
+        Location.find({}, function (err, locations) {
+            for (var station in data) {
+                var stationFoundInDatabase = false;
+                var stationName = data[station].name;
+                for (var location in locations) {
+                    var locationName = locations[location].name;
+                    if (stationName == locationName) {
+                        stationFoundInDatabase = true;
+                    }
+                }
+                if (!stationFoundInDatabase) {
+                    data[station].save(function (err, location) {});
+                }
+            }
+        });
+    }
+
+    function transformJsonToLocations(json) {
+        var locations = [];
+        for (var station in json.Stations.Station) {
+            var result = json.Stations.Station[station]
+            var location = new Location({
+                name: result.Namen.Lang,
+                type: result.Type,
+                latitude: result.Lat,
+                longitude: result.Lon
+            });
+            locations.push(location);
+        }
+        return locations;
+    }
+
+module.exports = function (router, io) {
+
 
 
     router.post('/spots', function (req, res, next) {
@@ -34,34 +105,51 @@ module.exports = function(router,io) {
                 if (err) {
                     res.statusCode = 404;
                     res.json(err);
+                } else {
+                    res.json(spot);
+                    io.emit('spot added', spot);
                 }
-                res.json(spot);
-                io.emit('spot added', spot);
             });
 
         });
     });
+
+    router.put('/spots/:id', function (req, res, next) {
+        Spot.findOneAndUpdate({_id:req.params.id}, req.body, function (err, spot) {
+            if(err) {
+                res.json(err);
+            } else {
+                res.json(spot);
+            }  
+        });
+    });
+
 
     router.get('/spots/:id', function (req, res, next) {
         Spot.findById(req.params.id, function (err, spot) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+            } else {
+                res.json(spot);
             }
         });
     });
 
     router.get("/spots", function (req, res, next) {
         var criteria = {};
-        if (req.param('owner')) {
-            criteria = {owner: req.param('owner') }
+        if (req.query.owner) {
+            criteria = {
+                owner: req.query.owner
+            }
         }
-        
+
         Spot.find(criteria, function (err, spot, count) {
             if (err) {
                 res.json(err);
-            }
-            res.json(spot);
+            } else {
+                res.json(spot);
+            }   
         }).populate('image owner');
     });
 
@@ -73,12 +161,58 @@ module.exports = function(router,io) {
             }
             if (spot != null) {
                 spot.remove(function (err, spot) {
-                    res.json(spot);
+                    if(err) {
+                        res.json(err);
+                    } else {
+                        res.json(spot);
+                    }
                 });
             }
         });
     });
 
+    //aparte get of in de locations inbouwen, overleggen met joost, locations/nearby zodat de api een /resource/etc heeft(niet mooi)
+    router.get('/locations/nearby', function (req, res, next) {
+        if (req.query.latitude && req.query.longitude) {
+            var range = 50;
+            if(req.query.range) {
+                range = req.query.range;
+            }
+            Location.find({}, function (err, locations) {
+                if (err) {
+                    res.statusCode = 404;
+                    res.json(err);
+                } else {
+                    var locationsInRange = [];
+                    for (var location in locations) {
+                        var distance = calculateLatLonDistance(req.query.latitude, req.query.longitude, locations[location].latitude, locations[location].longitude)
+                        if(distance <= range) {
+                            locationsInRange.push(locations[location]);
+
+                        }
+                    }
+                    res.json(locationsInRange);
+                }
+            });
+        } else {
+            res.json({ error : "Latitude and longitude parameters not found"});
+        }
+    });
+
+    function calculateLatLonDistance(lat1, lon1, lat2, lon2) { 
+        var radlat1 = Math.PI * lat1/180;
+        var radlat2 = Math.PI * lat2/180;
+        var radlon1 = Math.PI * lon1/180;
+        var radlon2 = Math.PI * lon2/180;
+        var theta = lon1-lon2;
+        var radtheta = Math.PI * theta/180;
+        var distance = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+        distance = Math.acos(distance)
+        distance = distance * 180/Math.PI;
+        distance = distance * 60 * 1.1515;
+        distance = distance * 1.609344;
+        return distance;
+    }
 
     router.post('/locations', function (req, res, next) {
         var location = new Location({
@@ -92,8 +226,9 @@ module.exports = function(router,io) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+            } else {
+                res.json(location);
             }
-            res.json(location);
         });
     });
 
@@ -102,8 +237,9 @@ module.exports = function(router,io) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+            } else {
+                res.json(location);
             }
-            res.json(location);
         });
     });
 
@@ -111,8 +247,9 @@ module.exports = function(router,io) {
         Location.find({}, function (err, location, count) {
             if (err) {
                 res.json(err);
-            }
-            res.json(location);
+            } else {
+               res.json(location); 
+            }  
         });
     });
 
@@ -124,57 +261,28 @@ module.exports = function(router,io) {
             }
             if (location != null) {
                 location.remove(function (err, location) {
-                    res.json(location);
+                    if(err) {
+                        res.json(err);
+                    } else {
+                        res.json(location);
+                    }
                 });
             }
         });
     });
 
-
-    router.get('/data', function (req, res, next) {
-        var options = {
-            host: 'webservices.ns.nl',
-            path: '/ns-api-stations-v2',
-            auth: "dannyvdbiezen@outlook.com" + ':' + "XnUYCIQtPEjlnz0BUztek8jqMgpxm4_Nvk1yqx7C59sEzjy71yZz2g"
-        };
-        var req = http.get(options, function (resp) {
-            var xml = '';
-            resp.on('data', function (chunk) {
-                xml += chunk;
-            });
-
-        resp.on('end', function () {
-          xml2js = require('xml2js');
-          var parser = new xml2js.Parser({explicitArray : false});
-          parser.addListener('end', function(result) {
-            res.json(addLocationsToSchema(result));
-          });
-          parser.parseString(xml);
-          
+    router.put('/locations/:id', function (req, res, next) {
+        Location.findOneAndUpdate({_id:req.params.id}, req.body, function (err, location) {
+            if(err) {
+                res.json(err);
+            } else {
+                res.json(location);
+            }  
         });
-      });
-
-      req.on('error', function (err) {
-        console.log(err);
-      });
     });
 
-  function addLocationsToSchema(json) {
-    var locations = [];
-    for(var station in json.Stations.Station){
-      var result = json.Stations.Station[station]
-      var location = new Location({
-        name: result.Namen.Lang,
-        type: result.Type,
-        latitude: result.Lat,
-        longitude: result.Lon
-      });
-      locations.push(location);
-    }
-    return locations;
-  }
 
-  router.post('/images', function (req, res, next) {
+    router.post('/images', function (req, res, next) {
         var image = new Image({
             extension: req.body.extension,
             data: req.body.data
@@ -184,8 +292,9 @@ module.exports = function(router,io) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+            } else {
+                res.json(image);
             }
-            res.json(image);
         });
     });
 
@@ -194,10 +303,11 @@ module.exports = function(router,io) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+            } else {
+                res.contentType(image.extension);
+                var buffer = new Buffer(image.data, 'base64');
+                res.send(buffer);
             }
-            res.contentType(image.extension);
-            var buffer = new Buffer(image.data, 'base64');
-            res.send(buffer);
         });
     });
 
@@ -205,11 +315,9 @@ module.exports = function(router,io) {
         Image.find({}, function (err, images, count) {
             if (err) {
                 res.json(err);
+            } else {
+                res.json(images);
             }
-            if (count === 0) {
-                res.json({"Message": "No images found"})
-            }
-            res.json(images);
         });
     });
 
@@ -221,10 +329,14 @@ module.exports = function(router,io) {
             }
             if (image != null) {
                 image.remove(function (err, image) {
-                    res.json(image);
+                    if(err) {
+                        res.json(err);
+                    } else {
+                        res.json(image);
+                    }
                 });
             }
         });
-    }); 
-  return router;
+    });
+    return router;
 };
