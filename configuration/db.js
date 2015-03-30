@@ -36,4 +36,4 @@ mongoose.model( 'spot', spot );
 mongoose.model( 'user', user );
 mongoose.model( 'location', location );
 
-mongoose.connect( 'mongodb://localhost/treinspot' );
+mongoose.connect( 'mongodb://trainspot:TrainSpot@ds045027.mongolab.com:45027/trainspot' );

@@ -1,5 +1,6 @@
 require('./configuration/db');
 var express = require('express');
+var cors = require('cors');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -26,7 +27,7 @@ http.listen(process.env.PORT || 1000, function() {
     console.log('listening on: ' + process.env.PORT || 1000);
 });
 //http.setMaxHeaderLength( 1e7 );
-
+app.use(cors());
 app.use(session({
     secret: 'login'
 }));
@@ -96,17 +97,6 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-
-
-//enable cors for cordova
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
-
 app.use('/', routes);
 app.use('/api', api);
 //app.use('/api/images', require('./routes/images.js')(express.router()))
