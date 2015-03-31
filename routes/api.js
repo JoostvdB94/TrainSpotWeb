@@ -186,7 +186,7 @@ module.exports = function(router, io) {
     });
 
     router.delete("/spots/:id", function(req, res, next) {
-        Image.findById(req.params.id, function(err, spot) {
+        Spot.findById(req.params.id, function(err, spot) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
