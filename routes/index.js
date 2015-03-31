@@ -1,26 +1,7 @@
-var mongoose = require('mongoose');
-var passport = require('passport');
+var express = require('express');
+var router = express();
 
-module.exports = function(router) {
-
-	router.get('/', function(req, res, next) {
-		res.render('index');
-	});
-
-	router.post('/login', passport.authenticate('login', {
-		successRedirect: '/crud',
-		failureRedirect: '/fail'
-	}));
-
-
-	router.post('/signup', passport.authenticate('signup', {
-		successRedirect: '/crud',
-		failureRedirect: '/fail'
-	}));
-
-	router.get('/fail', function(req, res, next) {
-		res.send("Auth error");
-	});
-
+module.exports = function() {
+	
 	return router;
 };

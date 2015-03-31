@@ -9,7 +9,7 @@ var request = require('request');
 
 
 var job = new CronJob({
-    cronTime: '1 * * * * *',
+    cronTime: '* * * 1 * *',
     onTick: function() {
         updateLocations();
     },
@@ -167,7 +167,7 @@ module.exports = function(router, io) {
                 owner: req.query.owner
             }
         }
-        if (req.query.latitude && req.query.longitude && req.query.limit && req.query.range) {
+        if (req.query.latitude && req.query.longitude) {
             var range = 50;
             if (req.query.range) {
                 range = req.query.range;
@@ -176,7 +176,7 @@ module.exports = function(router, io) {
             if (req.query.limit) {
                 limit = req.query.limit;
             }
-            Spot.find({}, function(err, spots) {
+            Spot.find(criteria, function(err, spots) {
                 if (err) {
                     res.statusCode = 404;
                     res.json(err);
@@ -225,19 +225,14 @@ module.exports = function(router, io) {
                 res.statusCode = 404;
                 res.json(err);
             }
-            if (spot != null) {
-                spot.remove(function(err, spot) {
-                    if (err) {
-                        res.json(err);
-                    } else {
-                        res.json(spot);
-                    }
-                });
-            } else {
-                res.json({
-                    error: "Spot not found"
-                })
-            }
+            spot.remove(function(err, spot) {
+                if (err) {
+                    res.json(err);
+                } else {
+                    res.json(spot);
+                }
+            });
+
         });
     });
 
@@ -263,6 +258,18 @@ module.exports = function(router, io) {
         Location.findById(req.params.id, function(err, location) {
             if (err) {
                 res.statusCode = 404;
+                res.json(err);
+            } else {
+                res.json(location);
+            }
+        });
+    });
+
+    router.put('/locations/:id', function(req, res, next) {
+        Location.findOneAndUpdate({
+            _id: req.params.id
+        }, req.body, function(err, location) {
+            if (err) {
                 res.json(err);
             } else {
                 res.json(location);
