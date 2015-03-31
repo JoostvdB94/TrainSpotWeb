@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
+var mongoosePages = require('mongoose-pages');
 
 var image = new Schema({
     extension 	: { type: String, required : true },
@@ -14,6 +15,8 @@ var spot = new Schema({
     image			: { type: Schema.Types.ObjectId, ref: 'image', required : true },
     owner			: { type: Schema.Types.ObjectId, ref: 'user' },			
 });
+
+mongoosePages.skip(spot);
 
 var user = new Schema({
     name    	: { type: String, required : true },

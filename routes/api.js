@@ -144,6 +144,11 @@ module.exports = function (router, io) {
                 owner: req.query.owner
             }
         }
+/*
+        User.findPaginated({}, function (err, result) {
+            if (err) throw err;
+            console.log(result);
+        }, docsPerPage, pageNumber);*/
 
         Spot.find(criteria, function (err, spot, count) {
             if (err) {
