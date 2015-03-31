@@ -167,7 +167,40 @@ module.exports = function(router, io) {
                 owner: req.query.owner
             }
         }
-        if (req.query.itemsPerPage && req.query.pageNumber) {
+        if (req.query.latitude && req.query.longitude && req.query.limit && req.query.range) {
+            var range = 50;
+            if (req.query.range) {
+                range = req.query.range;
+            }
+            var limit = 0;
+            if (req.query.limit) {
+                limit = req.query.limit;
+            }
+            Spot.find({}, function(err, spots) {
+                if (err) {
+                    res.statusCode = 404;
+                    res.json(err);
+                } else {
+                    var spotsInRange = [];
+                    for (var spot in spots) {
+                        var distance = calculateLatLonDistance(req.query.latitude, req.query.longitude, spots[spot].latitude, spots[spot].longitude)
+                        if (distance <= range) {
+                            spotWithDistance = spots[spot].toObject();
+                            spotWithDistance.distance = Math.ceil(distance);
+                            spotsInRange.push(spotWithDistance);
+                        }
+                    }
+                    spotsInRange.sort(function(a, b) {
+                        return a.distance - b.distance
+                    });
+                    if (limit > 0) {
+                        res.json(spotsInRange.slice(0, limit));
+                    } else {
+                        res.json(spotsInRange);
+                    }
+                }
+            });
+        } else if (req.query.itemsPerPage && req.query.pageNumber) {
             Spot.findPaginated(criteria, function(err, result) {
                 if (err) {
                     res.json(err);
@@ -201,7 +234,9 @@ module.exports = function(router, io) {
                     }
                 });
             } else {
-                res.json({error : "Spot not found"})
+                res.json({
+                    error: "Spot not found"
+                })
             }
         });
     });
@@ -312,36 +347,6 @@ module.exports = function(router, io) {
             }
         });
     });
-
-    router.put('/locations/:id', function(req, res, next) {
-        Location.findOneAndUpdate({
-            _id: req.params.id
-        }, req.body, function(err, location) {
-            if (err) {
-                res.json(err);
-            } else {
-                res.json(location);
-            }
-        });
-    });
-
-
-    router.post('/images', function(req, res, next) {
-        var image = new Image({
-            extension: req.body.extension,
-            data: req.body.data
-        });
-
-        image.save(function(err, image, count) {
-            if (err) {
-                res.statusCode = 404;
-                res.json(err);
-            } else {
-                res.json(image);
-            }
-        });
-    });
-
     router.get('/images/:id', function(req, res, next) {
         Image.findById(req.params.id, function(err, image) {
             if (err) {
@@ -355,32 +360,5 @@ module.exports = function(router, io) {
         });
     });
 
-    router.get("/images", function(req, res, next) {
-        Image.find({}, function(err, images, count) {
-            if (err) {
-                res.json(err);
-            } else {
-                res.json(images);
-            }
-        });
-    });
-
-    router.delete("/images/:id", function(req, res, next) {
-        Image.findById(req.params.id, function(err, image) {
-            if (err) {
-                res.statusCode = 404;
-                res.json(err);
-            }
-            if (image != null) {
-                image.remove(function(err, image) {
-                    if (err) {
-                        res.json(err);
-                    } else {
-                        res.json(image);
-                    }
-                });
-            }
-        });
-    });
     return router;
 };
