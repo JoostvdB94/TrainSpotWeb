@@ -100,6 +100,7 @@ module.exports = function(router, io) {
                 description: req.body.description,
                 latitude: req.body.latitude,
                 longitude: req.body.longitude,
+                creationDate: req.body.creationDate,
                 image: image,
                 owner: "55129a68c29fcd301d0612ea" //hardcoded owner
             });
