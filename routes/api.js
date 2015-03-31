@@ -199,7 +199,7 @@ module.exports = function(router, io) {
                         res.json(spotsInRange);
                     }
                 }
-            });
+            }).populate('image owner');
         } else if (req.query.itemsPerPage && req.query.pageNumber) {
             Spot.findPaginated(criteria, function(err, result) {
                 if (err) {
