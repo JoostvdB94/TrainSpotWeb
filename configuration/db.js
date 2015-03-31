@@ -35,7 +35,7 @@ var spot = new Schema({
     creationDate: {
         type: Number,
         required: true
-    }
+    },
     image: {
         type: Schema.Types.ObjectId,
         ref: 'image',
