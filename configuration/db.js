@@ -64,6 +64,14 @@ var user = new Schema({
     }
 });
 
+user.methods.generateHash = function(password) {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+};
+
+user.methods.validPassword = function(password) {
+    return bcrypt.compareSync(password, this.local.password);
+};
+
 
 var location = new Schema({
     name: {
