@@ -11,7 +11,7 @@ var request = require('request');
 module.exports = function(router, io) {
 
     var job = new CronJob({
-        cronTime: '* * * 1 * *',
+        cronTime: '* * 1 * * *',
         onTick: function() {
             updateLocations();
         },
