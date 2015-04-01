@@ -20,7 +20,6 @@ socketIO.on('connection', function(socket) {
 });
 
 http.listen(process.env.PORT || 1000, function() {
-  console.log('listening on: ' + process.env.PORT || 1000);
 });
 
 app.use(cors());
