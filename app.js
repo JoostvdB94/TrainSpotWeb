@@ -10,17 +10,14 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var flash = require('connect-flash');
+var passport = require('passport');
+var flash    = require('connect-flash');
 var session = require('express-session');
 
 var socketIO = io.of('/apiNamespace')
 socketIO.on('connection', function(socket) {
   socket.join('spotRoom');
 });
-
-var routes = require('./routes/index')(express.Router());
-var api = require('./routes/api')(express.Router(), socketIO);
-var crud = require('./routes/crud')(express.Router());
 
 http.listen(process.env.PORT || 1000, function() {
   console.log('listening on: ' + process.env.PORT || 1000);
@@ -29,11 +26,9 @@ http.listen(process.env.PORT || 1000, function() {
 app.use(cors());
 
 
-
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
@@ -45,12 +40,21 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 
+app.use(session({ secret: 'trainspot' }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash()); 
+
+require('./configuration/passport')(passport);
+
+var routes = require('./routes/index')(express.Router(), passport);
+var api = require('./routes/api')(express.Router(), socketIO, passport);
+var crud = require('./routes/crud')(express.Router(), passport);
 
 
 app.use(cookieParser());
 app.use('/', routes);
 app.use('/api', api);
-//app.use('/api/images', require('./routes/images.js')(express.router()))
 app.use('/crud', crud);
 
 

@@ -8,7 +8,13 @@ var Location = mongoose.model('location');
 var request = require('request');
 
 
-module.exports = function(router, io) {
+module.exports = function(router, io, passport) {
+
+
+    router.get('/updateLocationsManually', function(req, res, next) {
+        updateLocations();
+        res.json({ message: "upateing locations successful"})
+    });
 
     var job = new CronJob({
         cronTime: '* * 1 * * *',
@@ -17,12 +23,6 @@ module.exports = function(router, io) {
         },
         start: true
     });
-
-    router.get('/updateLocationsManually', function(req, res, next) {
-        updateLocations();
-        res.json({ message: "upateing locations successful"})
-    });
-
 
     function updateLocations() {
         var options = {

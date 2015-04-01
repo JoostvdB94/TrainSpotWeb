@@ -8,7 +8,7 @@ var mongoose = require('mongoose');
 var User = mongoose.model('user');
 var Spot = mongoose.model('spot');
 
-module.exports = function(router) {
+module.exports = function(router, passport) {
     router.get('/', function (req, res, next) {
         res.render('crud/index');
     });
