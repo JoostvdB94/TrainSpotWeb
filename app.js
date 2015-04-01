@@ -15,7 +15,7 @@ var session = require('express-session');
 
 var socketIO = io.of('/apiNamespace')
 socketIO.on('connection', function(socket) {
-  socket.join('locationRoom');
+  socket.join('spotRoom');
 });
 
 var routes = require('./routes/index')(express.Router());
