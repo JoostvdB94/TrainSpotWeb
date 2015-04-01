@@ -23,7 +23,7 @@ module.exports = function() {
 	});
 
 	roles.use('access user', function(req) {
-		if (req.user.local.username == req.params.id) {
+		if (req.user._id == req.params.id) {
 			return true;
 		};
 	});
