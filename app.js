@@ -13,13 +13,15 @@ var mongoose = require('mongoose');
 var flash = require('connect-flash');
 var session = require('express-session');
 
+var socketIO = io.of('/apiNamespace')
+socketIO.on('connection', function(socket) {
+  socket.join('locationRoom');
+});
+
 var routes = require('./routes/index')(express.Router());
-var api = require('./routes/api')(express.Router(), io);
+var api = require('./routes/api')(express.Router(), socketIO);
 var crud = require('./routes/crud')(express.Router());
 
-io.on('connection', function(socket) {
-  console.log("user is connected");
-});
 http.listen(process.env.PORT || 1000, function() {
   console.log('listening on: ' + process.env.PORT || 1000);
 });

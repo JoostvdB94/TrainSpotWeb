@@ -131,7 +131,6 @@ module.exports = function(router, io) {
                                 throw error;
                             }
                         });
-                    io.emit('spot added', spot);
                     res.json(spot);
                 }
             });
@@ -252,6 +251,7 @@ module.exports = function(router, io) {
                 res.statusCode = 404;
                 res.json(err);
             } else {
+                io.to('locationRoom').emit('location added', location);
                 res.json(location);
             }
         });
