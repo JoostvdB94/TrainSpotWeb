@@ -118,7 +118,7 @@ module.exports = function(router, io, passport, userRoles) {
                 longitude: req.body.longitude,
                 creationDate: req.body.creationDate,
                 image: image,
-                owner: req.user._id
+                owner: req.body.owner
             });
             spot.save(function(err, spot, count) {
                 if (err) {
