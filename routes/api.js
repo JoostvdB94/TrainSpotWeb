@@ -8,7 +8,7 @@ var Location = mongoose.model('location');
 var request = require('request');
 
 
-module.exports = function(router, io, passport) {
+module.exports = function(router, io, passport, userRoles) {
 
 
     function isLoggedIn(req, res, next) {
@@ -25,7 +25,7 @@ module.exports = function(router, io, passport) {
     router.get('/updateLocationsManually', function(req, res, next) {
         updateLocations();
         res.json({
-            message: "upateing locations successful"
+            message: "updating locations successful"
         })
     });
 
@@ -118,7 +118,7 @@ module.exports = function(router, io, passport) {
                 longitude: req.body.longitude,
                 creationDate: req.body.creationDate,
                 image: image,
-                owner: "55129a68c29fcd301d0612ea" //hardcoded owner
+                owner: req.user._id
             });
             spot.save(function(err, spot, count) {
                 if (err) {
@@ -241,14 +241,17 @@ module.exports = function(router, io, passport) {
                 res.statusCode = 404;
                 res.json(err);
             }
-            spot.remove(function(err, spot) {
-                if (err) {
-                    res.json(err);
-                } else {
-                    res.json(spot);
-                }
-            });
-
+            if (spot != null) {
+                spot.remove(function(err, spot) {
+                    if (err) {
+                        res.json(err);
+                    } else {
+                        res.json(spot);
+                    }
+                });
+            } else {
+                res.json({message: "No spot found with id: " + req.params.id})
+            }
         });
     });
 
@@ -367,6 +370,8 @@ module.exports = function(router, io, passport) {
                         res.json(location);
                     }
                 });
+            } else {
+                res.json({message: "No location found with id: " + req.params.id})
             }
         });
     });

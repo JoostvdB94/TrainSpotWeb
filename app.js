@@ -11,7 +11,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
-var flash    = require('connect-flash');
+var flash = require('connect-flash');
 var session = require('express-session');
 
 var socketIO = io.of('/apiNamespace')
@@ -40,18 +40,23 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 
-app.use(session({ secret: 'trainspot' }));
+app.use(session({
+  secret: 'trainspot'
+}));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(flash()); 
+app.use(flash());
 
 require('./configuration/passport')(passport);
 
+var roles = require('./configuration/connectroles')();
+
+
 var routes = require('./routes/index')(express.Router(), passport);
-var api = require('./routes/api')(express.Router(), socketIO, passport);
+var api = require('./routes/api')(express.Router(), socketIO, passport, roles);
 var crud = require('./routes/crud')(express.Router(), passport);
 
-
+app.use(roles.middleware());
 app.use(cookieParser());
 app.use('/', routes);
 app.use('/api', api);
