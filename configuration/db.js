@@ -73,7 +73,7 @@ var location = new Schema({
     type: {
         type: String,
         required: true,
-    
+        enum: ['knooppuntIntercitystation', 'stoptreinstation', 'userLocation', 'knooppuntSneltreinstation', 'intercitystation', 'facultatiefStation', 'sneltreinstation', 'knooppuntStoptreinstation', 'megastation']
     },
     latitude: {
         type: Number,
