@@ -21,7 +21,6 @@ module.exports = function(passport) {
             passReqToCallback: true 
         },
         function(req, username, password, done) {
-            console.log(req)
             req.logout();
             User.findOne({
                 'local.username': username
@@ -37,6 +36,7 @@ module.exports = function(passport) {
                     var newUser = new User();
                     newUser.local.username = username;
                     newUser.local.password = newUser.generateHash(password);
+                    newUser.roles.push('user');
                     newUser.save(function(err) {
                         if (err) {
                             throw err;
