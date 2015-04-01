@@ -8,81 +8,84 @@ var Location = mongoose.model('location');
 var request = require('request');
 
 
-var job = new CronJob({
-    cronTime: '* * * 1 * *',
-    onTick: function() {
-        updateLocations();
-    },
-    start: true
-});
-
-
-function updateLocations() {
-    var options = {
-        host: 'webservices.ns.nl',
-        path: '/ns-api-stations-v2',
-        auth: "dannyvdbiezen@outlook.com" + ':' + "XnUYCIQtPEjlnz0BUztek8jqMgpxm4_Nvk1yqx7C59sEzjy71yZz2g"
-    };
-    var req = http.get(options, function(resp) {
-        var xml = '';
-        resp.on('data', function(chunk) {
-            xml += chunk;
-        });
-
-        resp.on('end', function() {
-            xml2js = require('xml2js');
-            var parser = new xml2js.Parser({
-                explicitArray: false
-            });
-            parser.addListener('end', function(result) {
-                updateLocationDatabase(transformJsonToLocations(result));
-            });
-            parser.parseString(xml);
-
-        });
-    });
-
-    req.on('error', function(err) {
-        console.log(err);
-    });
-}
-
-function updateLocationDatabase(data) {
-    Location.find({}, function(err, locations) {
-        for (var station in data) {
-            var stationFoundInDatabase = false;
-            var stationName = data[station].name;
-            for (var location in locations) {
-                var locationName = locations[location].name;
-                if (stationName == locationName) {
-                    stationFoundInDatabase = true;
-                }
-            }
-            if (!stationFoundInDatabase) {
-                data[station].save(function(err, location) {});
-            }
-        }
-    });
-}
-
-function transformJsonToLocations(json) {
-    var locations = [];
-    for (var station in json.Stations.Station) {
-        var result = json.Stations.Station[station]
-        var location = new Location({
-            name: result.Namen.Lang,
-            type: result.Type,
-            latitude: result.Lat,
-            longitude: result.Lon
-        });
-        locations.push(location);
-    }
-    return locations;
-}
-
 module.exports = function(router, io) {
 
+    var job = new CronJob({
+        cronTime: '* * * 1 * *',
+        onTick: function() {
+            updateLocations();
+        },
+        start: true
+    });
 
+    router.get('/updateLocationsManually', function(req, res, next) {
+        updateLocations();
+        res.json({ message: "upateing locations successful"})
+    });
+
+
+    function updateLocations() {
+        var options = {
+            host: 'webservices.ns.nl',
+            path: '/ns-api-stations-v2',
+            auth: "dannyvdbiezen@outlook.com" + ':' + "XnUYCIQtPEjlnz0BUztek8jqMgpxm4_Nvk1yqx7C59sEzjy71yZz2g"
+        };
+        var req = http.get(options, function(resp) {
+            var xml = '';
+            resp.on('data', function(chunk) {
+                xml += chunk;
+            });
+
+            resp.on('end', function() {
+                xml2js = require('xml2js');
+                var parser = new xml2js.Parser({
+                    explicitArray: false
+                });
+                parser.addListener('end', function(result) {
+                    updateLocationDatabase(transformJsonToLocations(result));
+                });
+                parser.parseString(xml);
+
+            });
+        });
+
+        req.on('error', function(err) {
+            console.log(err);
+        });
+    }
+
+    function updateLocationDatabase(data) {
+        Location.find({}, function(err, locations) {
+            for (var station in data) {
+                var stationFoundInDatabase = false;
+                var stationName = data[station].name;
+                for (var location in locations) {
+                    var locationName = locations[location].name;
+                    if (stationName == locationName) {
+                        stationFoundInDatabase = true;
+                    }
+                }
+                if (!stationFoundInDatabase) {
+                    data[station].save(function(err, location) {});
+                }
+            }
+        });
+    }
+
+    function transformJsonToLocations(json) {
+        var locations = [];
+        for (var station in json.Stations.Station) {
+            var result = json.Stations.Station[station]
+            var location = new Location({
+                name: result.Namen.Lang,
+                type: result.Type,
+                latitude: result.Lat,
+                longitude: result.Lon
+            });
+            locations.push(location);
+        }
+        return locations;
+    }
 
     router.post('/spots', function(req, res, next) {
         var image = new Image({
