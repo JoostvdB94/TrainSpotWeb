@@ -25,12 +25,10 @@ http.listen(process.env.PORT || 1000, function() {
 app.use(cors());
 
 
-// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(favicon(__dirname + '/public/images/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json({
   limit: '50mb'
@@ -53,14 +51,11 @@ var roles = require('./configuration/connectroles')();
 
 var routes = require('./routes/index')(express.Router(), passport);
 var api = require('./routes/api')(express.Router(), socketIO, passport, roles);
-var crud = require('./routes/crud')(express.Router(), passport);
 
 app.use(roles.middleware());
 app.use(cookieParser());
 app.use('/', routes);
 app.use('/api', api);
-app.use('/crud', crud);
-
 
 
 // catch 404 and forward to error handler
