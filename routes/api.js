@@ -100,7 +100,7 @@ module.exports = function(router, io, passport, userRoles) {
         return locations;
     }
 
-    router.post('/spots', isLoggedIn, userRoles.can('user'), function(req, res, next) {
+    router.post('/spots', function(req, res, next) {
         var image = new Image({
             extension: req.body.image.extension,
             data: req.body.image.data
