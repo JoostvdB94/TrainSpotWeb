@@ -4,11 +4,12 @@ module.exports = function(router, passport) {
         res.render('index');
     });
 
-    router.post('/signup', passport.authenticate('local-signup', {
-        successRedirect: '/signup',
-        failureRedirect: '/signup',
-        failureFlash: true
-    }));
+    router.post('/signup', passport.authenticate('local-signup'), function(req, res) {
+        res.json({
+            authenticated: true,
+            user: req.user
+        })
+    });
 
     router.get('/login', function(req, res, next) {
         res.json({
@@ -17,11 +18,12 @@ module.exports = function(router, passport) {
         });
     });
 
-    router.post('/login', passport.authenticate('local-login', {
-        successRedirect: '/login',
-        failureRedirect: '/login',
-        failureFlash: true
-    }));
+    router.post('/login', passport.authenticate('local-login'), function(req, res) {
+        res.json({
+            authenticated: true,
+            user: req.user
+        })
+    });
 
     router.get('/signup', function(req, res, next) {
         res.json({
@@ -37,12 +39,3 @@ module.exports = function(router, passport) {
     });
     return router;
 };
-
-function isLoggedIn(req, res, next) {
-
-    if (req.isAuthenticated()) {
-        return next();
-    }
-
-    res.redirect('/');
-}
