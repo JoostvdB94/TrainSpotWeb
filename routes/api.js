@@ -100,7 +100,7 @@ module.exports = function(router, io, passport, userRoles) {
         return locations;
     }
 
-    router.post('/spots', function(req, res, next) {
+    router.post('/spots', isLoggedIn, userRoles.can('user'), function(req, res, next) {
         var image = new Image({
             extension: req.body.image.extension,
             data: req.body.image.data
@@ -118,7 +118,7 @@ module.exports = function(router, io, passport, userRoles) {
                 longitude: req.body.longitude,
                 creationDate: req.body.creationDate,
                 image: image,
-                owner: req.body.owner
+                owner: req.user._id
             });
             spot.save(function(err, spot, count) {
                 if (err) {
