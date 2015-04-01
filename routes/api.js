@@ -100,11 +100,7 @@ module.exports = function(router, io, passport, userRoles) {
         return locations;
     }
 
-    /*router.post('/spots', userRoles.can('access user'), function(req, res, next) {
-        next();
-    })*/
-
-    router.post('/spots', isLoggedIn, function(req, res, next) {
+    router.post('/spots', isLoggedIn, userRoles.can('user'), function(req, res, next) {
         var image = new Image({
             extension: req.body.image.extension,
             data: req.body.image.data
@@ -156,7 +152,7 @@ module.exports = function(router, io, passport, userRoles) {
         });
     });
 
-    router.put('/spots/:id', isLoggedIn, function(req, res, next) {
+    router.put('/spots/:id', isLoggedIn, userRoles.can('user'), function(req, res, next) {
         Spot.findOneAndUpdate({
             _id: req.params.id
         }, req.body, function(err, spot) {
@@ -239,7 +235,7 @@ module.exports = function(router, io, passport, userRoles) {
         }
     });
 
-    router.delete("/spots/:id", isLoggedIn, function(req, res, next) {
+    router.delete("/spots/:id", isLoggedIn, userRoles.can('admin'), function(req, res, next) {
         Spot.findById(req.params.id, function(err, spot) {
             if (err) {
                 res.statusCode = 404;
@@ -259,7 +255,7 @@ module.exports = function(router, io, passport, userRoles) {
         });
     });
 
-    router.post('/locations', isLoggedIn, function(req, res, next) {
+    router.post('/locations', isLoggedIn, userRoles.can('user'), function(req, res, next) {
         var location = new Location({
             name: req.body.name,
             type: req.body.type,
@@ -288,7 +284,7 @@ module.exports = function(router, io, passport, userRoles) {
         });
     });
 
-    router.put('/locations/:id', isLoggedIn, function(req, res, next) {
+    router.put('/locations/:id', isLoggedIn, userRoles.can('user'), function(req, res, next) {
         Location.findOneAndUpdate({
             _id: req.params.id
         }, req.body, function(err, location) {
@@ -360,7 +356,7 @@ module.exports = function(router, io, passport, userRoles) {
         return distance;
     }
 
-    router.delete("/locations/:id", isLoggedIn, function(req, res, next) {
+    router.delete("/locations/:id", isLoggedIn, userRoles.can('admin'), function(req, res, next) {
         Location.findById(req.params.id, function(err, location) {
             if (err) {
                 res.statusCode = 404;
@@ -379,7 +375,7 @@ module.exports = function(router, io, passport, userRoles) {
             }
         });
     });
-    router.get('/images/:id', function(req, res, next) {
+    router.get('/images/:id', isLoggedIn, userRoles.can('user'), function(req, res, next) {
         Image.findById(req.params.id, function(err, image) {
             if (err) {
                 res.statusCode = 404;

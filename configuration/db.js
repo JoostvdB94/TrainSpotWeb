@@ -73,6 +73,40 @@ user.methods.validPassword = function(password) {
 };
 
 
+user.methods.hasAnyRole = function(roles) {
+    if (!Array.isArray(roles)) {
+        roles = [roles];
+    }
+
+    var lowerCaseRoles = _.map(this.roles, function(role) {
+        return role.toLowerCase();
+    });
+    for (var index in roles) {
+        if (_.contains(lowerCaseRoles, roles[index].toLowerCase())) {
+            return true;
+        }
+    };
+
+    return false;
+};
+
+user.methods.hasAllRoles = function(roles) {
+    if (!Array.isArray(roles)) {
+        roles = [roles];
+    }
+
+    var lowerCaseRoles = _.map(this.roles, function(role) {
+        return role.toLowerCase();
+    });
+    for (var index in roles) {
+        if (!_.contains(lowerCaseRoles, roles[index].toLowerCase())) {
+            return false;
+        }
+    };
+
+    return true;
+};
+
 var location = new Schema({
     name: {
         type: String,

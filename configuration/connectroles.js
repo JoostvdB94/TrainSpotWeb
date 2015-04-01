@@ -5,25 +5,24 @@ module.exports = function() {
 		failureHandler: function(req, res, action) {
 			var accept = req.headers.accept || '';
 			res.status(403);
-			if (~accept.indexOf('html')) {
-				res.json({
-					message: "access-denied"
-				});
-			} else {
-				res.send('Access Denied - You don\'t have permission to: ' + action);
-			}
+
+			res.json({
+				message: "access-denied"
+			});
+
 		}
 	});
 
 
 	roles.use(function(req, action) {
 		if (!req.isAuthenticated()) {
-			return action === 'access get locations spots';
+			return action === 'guest';
 		}
 	});
 
-	roles.use('access user', function(req) {
-		if (req.user._id == req.params.id) {
+	roles.use('user', function(req) {
+		if (req.user.hasAnyRole('user')) {
+
 			return true;
 		};
 	});
