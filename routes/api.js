@@ -11,9 +11,22 @@ var request = require('request');
 module.exports = function(router, io, passport) {
 
 
+    function isLoggedIn(req, res, next) {
+
+        if (req.isAuthenticated()) {
+            return next();
+        }
+        res.statusCode = 401;
+        res.json({
+            "message": "You are not authenticated"
+        })
+    }
+
     router.get('/updateLocationsManually', function(req, res, next) {
         updateLocations();
-        res.json({ message: "upateing locations successful"})
+        res.json({
+            message: "upateing locations successful"
+        })
     });
 
     var job = new CronJob({
@@ -87,7 +100,7 @@ module.exports = function(router, io, passport) {
         return locations;
     }
 
-    router.post('/spots', function(req, res, next) {
+    router.post('/spots', isLoggedIn, function(req, res, next) {
         var image = new Image({
             extension: req.body.image.extension,
             data: req.body.image.data
@@ -139,7 +152,7 @@ module.exports = function(router, io, passport) {
         });
     });
 
-    router.put('/spots/:id', function(req, res, next) {
+    router.put('/spots/:id', isLoggedIn, function(req, res, next) {
         Spot.findOneAndUpdate({
             _id: req.params.id
         }, req.body, function(err, spot) {
@@ -222,7 +235,7 @@ module.exports = function(router, io, passport) {
         }
     });
 
-    router.delete("/spots/:id", function(req, res, next) {
+    router.delete("/spots/:id", isLoggedIn, function(req, res, next) {
         Spot.findById(req.params.id, function(err, spot) {
             if (err) {
                 res.statusCode = 404;
@@ -239,7 +252,7 @@ module.exports = function(router, io, passport) {
         });
     });
 
-    router.post('/locations', function(req, res, next) {
+    router.post('/locations', isLoggedIn, function(req, res, next) {
         var location = new Location({
             name: req.body.name,
             type: req.body.type,
@@ -268,7 +281,7 @@ module.exports = function(router, io, passport) {
         });
     });
 
-    router.put('/locations/:id', function(req, res, next) {
+    router.put('/locations/:id', isLoggedIn, function(req, res, next) {
         Location.findOneAndUpdate({
             _id: req.params.id
         }, req.body, function(err, location) {
@@ -340,7 +353,7 @@ module.exports = function(router, io, passport) {
         return distance;
     }
 
-    router.delete("/locations/:id", function(req, res, next) {
+    router.delete("/locations/:id", isLoggedIn, function(req, res, next) {
         Location.findById(req.params.id, function(err, location) {
             if (err) {
                 res.statusCode = 404;
