@@ -3,6 +3,9 @@ process.env.NODE_ENV = 'test';
 var app = require('../app');
 var request = require('supertest');
 var passportStub = require('passport-stub');
+
+var mongoose = require('mongoose');
+var User = mongoose.model('user');
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 var api = require('./../routes/api.js')
@@ -14,7 +17,7 @@ describe('/api tests', function() {
 	this.timeout(60000);
 	describe('/Locations tests', function() {
 		var location = null;
-
+		passportStub.login(new User({ roles: ['admin']}));
 		describe('Post /locations', function() {
 			it('should return the object just created', function(done) {
 				request(app)
