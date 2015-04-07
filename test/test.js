@@ -17,7 +17,9 @@ describe('/api tests', function() {
 	this.timeout(60000);
 	describe('/Locations tests', function() {
 		var location = null;
-		passportStub.login(new User({ roles: ['admin']}));
+		passportStub.login(new User({
+			roles: ['admin']
+		}));
 		describe('Post /locations', function() {
 			it('should return the object just created', function(done) {
 				request(app)
@@ -284,9 +286,97 @@ describe('Common operations', function() {
 			})
 	});
 
-	it('should update the database with locations from the NS API', function(done) {
+	it('should show if the user is logged in', function(done) {
 		request(app)
-			.get('/api/updateLocationsManually')
+			.get('/login')
+			.expect(200)
+			.end(function(err, res) {
+				if (err) {
+					return done(err);
+				}
+				done();
+			})
+	});
+
+	it('should try to logout an user', function(done) {
+		request(app)
+			.get('/logout')
+			.expect(200)
+			.end(function(err, res) {
+				if (err) {
+					return done(err);
+				}
+				done();
+			})
+	});
+
+	it('should try to login an user', function(done) {
+		request(app)
+			.post('/login')
+			.expect(302)
+			.end(function(err, res) {
+				if (err) {
+					return done(err);
+				}
+				done();
+			})
+	});
+
+	it('should show if the user is logged in', function(done) {
+		request(app)
+			.get('/signup')
+			.expect(200)
+			.end(function(err, res) {
+				if (err) {
+					return done(err);
+				}
+				done();
+			})
+	});
+
+	it('should try to register an user', function(done) {
+		request(app)
+			.post('/signup')
+			.expect(302)
+			.end(function(err, res) {
+				if (err) {
+					return done(err);
+				}
+				done();
+			})
+	});
+});
+
+
+describe('html pages', function() {
+	this.timeout(60000);
+	it('should return a html page', function(done) {
+		request(app)
+			.get('/inloggen')
+			.expect(200)
+			.end(function(err, res) {
+				if (err) {
+					return done(err);
+				}
+				done();
+			})
+	});
+
+	it('should return a html page', function(done) {
+		request(app)
+			.get('/registreren')
+			.expect(200)
+			.end(function(err, res) {
+				if (err) {
+					return done(err);
+				}
+				done();
+			})
+	});
+
+	it('should return a html page', function(done) {
+		request(app)
+			.get('/home')
 			.expect(200)
 			.end(function(err, res) {
 				if (err) {
