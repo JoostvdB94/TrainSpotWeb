@@ -18,6 +18,18 @@ module.exports = function(router, passport) {
         });
     });
 
+    router.get('/inloggen', function(req, res, next) {
+        res.render('login');
+    });
+
+    router.get('/home', function(req, res, next) {
+        res.render('home');
+    });
+
+    router.get('/registreren', function(req, res, next) {
+        res.render('signup');
+    });
+
     router.post('/login', passport.authenticate('local-login'), function(req, res) {
         res.json({
             authenticated: true,

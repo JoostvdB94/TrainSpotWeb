@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+    <title> img(src="data:#{spot.image.extension};base64,#{spot.image.data}",style="max-width:100px;</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> 
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body        { padding-top:80px; }
+    </style>
+</head>
+<body>
+<div class="container" id='testbox'>
+<p>
+<h1> Deze pagina zal verder worden ontwikkeld wanneer TrainSpot 2.0 uitkomt!  </h1>
+</p>
+<div class="col-sm-6 col-sm-offset-3">
+
+</div>
+
+</div>
+</body>
+<script>
+
+var socket = io('/apiNamespace')
+socket.on("spot added",function(spot){
+            console.log("A spot was added! " + spot);
+
+           $('#spots').append('<tr><td>'+spot.name+'</td><td><img style="max-width:100px;" src="data:'+spot.image.extension+';base64,'+spot.image.data+'"/></td><td><a href="/crud/spots/delete/'+spot._id+'">X</a><span style="margin-left:5px;"></span><a href="/crud/spots/edit/'+spot._id+'">E</a> </td></tr>')
+        });
+</script>
+</html>

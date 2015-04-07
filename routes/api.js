@@ -29,6 +29,7 @@ module.exports = function(router, io, passport, userRoles) {
         })
     });
 
+    //start een schedule dat elke dag de locations update
     var job = new CronJob({
         cronTime: '* * 1 * * *',
         onTick: function() {
