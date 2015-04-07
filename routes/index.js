@@ -4,12 +4,10 @@ module.exports = function(router, passport) {
         res.render('index');
     });
 
-    router.post('/signup', passport.authenticate('local-signup'), function(req, res) {
-        res.json({
-            authenticated: true,
-            user: req.user
-        })
-    });
+    router.post('/signup', passport.authenticate('local-signup', {
+        successRedirect: '/login',
+        failureRedirect: '/login'
+    }));
 
     router.get('/login', function(req, res, next) {
         res.json({
@@ -30,12 +28,10 @@ module.exports = function(router, passport) {
         res.render('signup');
     });
 
-    router.post('/login', passport.authenticate('local-login'), function(req, res) {
-        res.json({
-            authenticated: true,
-            user: req.user
-        })
-    });
+    router.post('/login', passport.authenticate('local-login', {
+        successRedirect: '/login',
+        failureRedirect: '/login'
+    }));
 
     router.get('/signup', function(req, res, next) {
         res.json({
