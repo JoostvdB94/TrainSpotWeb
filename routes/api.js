@@ -178,6 +178,7 @@ module.exports = function(router, io, passport, userRoles) {
     });
 
     router.get("/spots", function(req, res, next) {
+        res.connection.setTimeout(0);
         var criteria = {};
         if (req.query.owner) {
             criteria = {
