@@ -113,6 +113,7 @@ module.exports = function(router, io, passport, userRoles) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+                return;
             }
             var spot = new Spot({
                 name: req.body.name,
@@ -127,6 +128,7 @@ module.exports = function(router, io, passport, userRoles) {
                 if (err) {
                     res.statusCode = 404;
                     res.json(err);
+                    return;
                 } else {
                     var pushUrl = req.protocol + '://compuplex.nl:10030/send';
                     request({
@@ -161,6 +163,7 @@ module.exports = function(router, io, passport, userRoles) {
         }, req.body, function(err, spot) {
             if (err) {
                 res.json(err);
+                return;
             } else {
                 res.json(spot);
             }
@@ -173,6 +176,7 @@ module.exports = function(router, io, passport, userRoles) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+                return;
             } else {
                 res.json(spot);
             }
@@ -200,6 +204,7 @@ module.exports = function(router, io, passport, userRoles) {
                 if (err) {
                     res.statusCode = 404;
                     res.json(err);
+                    return;
                 } else {
                     var spotsInRange = [];
                     for (var spot in spots) {
@@ -224,6 +229,7 @@ module.exports = function(router, io, passport, userRoles) {
             Spot.findPaginated(criteria, function(err, result) {
                 if (err) {
                     res.json(err);
+                    return;
                 } else {
                     res.json(result);
                 }
@@ -232,6 +238,7 @@ module.exports = function(router, io, passport, userRoles) {
             Spot.find(criteria, function(err, spot, count) {
                 if (err) {
                     res.json(err);
+                    return;
                 } else {
                     res.json(spot);
                 }
@@ -244,11 +251,13 @@ module.exports = function(router, io, passport, userRoles) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+                return;
             }
             if (spot != null) {
                 spot.remove(function(err, spot) {
                     if (err) {
                         res.json(err);
+                        return;
                     } else {
                         res.json(spot);
                     }
@@ -271,6 +280,7 @@ module.exports = function(router, io, passport, userRoles) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+                return;
             } else {
                 res.json(location);
             }
@@ -282,6 +292,7 @@ module.exports = function(router, io, passport, userRoles) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+                return;
             } else {
                 res.json(location);
             }
@@ -293,7 +304,9 @@ module.exports = function(router, io, passport, userRoles) {
             _id: req.params.id
         }, req.body, function(err, location) {
             if (err) {
+                res.statusCode = 404;
                 res.json(err);
+                return;
             } else {
                 res.json(location);
             }
@@ -314,6 +327,7 @@ module.exports = function(router, io, passport, userRoles) {
                 if (err) {
                     res.statusCode = 404;
                     res.json(err);
+                    return;
                 } else {
                     var locationsInRange = [];
                     for (var location in locations) {
@@ -337,7 +351,9 @@ module.exports = function(router, io, passport, userRoles) {
         } else {
             Location.find({}, function(err, location, count) {
                 if (err) {
+                    res.statuCode = 404;
                     res.json(err);
+                    return;
                 } else {
                     res.json(location);
                 }
@@ -365,6 +381,7 @@ module.exports = function(router, io, passport, userRoles) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+                return;
             }
             if (location != null) {
                 location.remove(function(err, location) {
@@ -384,6 +401,7 @@ module.exports = function(router, io, passport, userRoles) {
             if (err) {
                 res.statusCode = 404;
                 res.json(err);
+                return;
             } else {
                 res.contentType(image.extension);
                 var buffer = new Buffer(image.data, 'base64');
