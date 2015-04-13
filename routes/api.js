@@ -110,31 +110,32 @@ module.exports = function(router, io, passport, userRoles) {
         });
 
         image.save(function(err, image, count) {
-                if (err) {
-                    res.statusCode = 404;
-                    return res.json(err);
+            if (err) {
+                res.statusCode = 404;
+                return res.json(err);
 
-                } else {
-                    var spot = new Spot({
-                        name: req.body.name,
-                        description: req.body.description,
-                        latitude: req.body.latitude,
-                        longitude: req.body.longitude,
-                        creationDate: req.body.creationDate,
-                        image: image,
-                        owner: req.user._id
-                    });
-                    spot.save(function(err, spot, count) {
-                        if (err) {
-                            res.statusCode = 404;
-                            return res.json(err)
-                        } else {
-                            res.json(spot);
-                        }
-                    });
-
+            } else {
+                var spot = new Spot({
+                    name: req.body.name,
+                    description: req.body.description,
+                    latitude: req.body.latitude,
+                    longitude: req.body.longitude,
+                    creationDate: req.body.creationDate,
+                    image: image,
+                    owner: req.user._id
                 });
-        }
+                spot.save(function(err, spot, count) {
+                    if (err) {
+                        res.statusCode = 404;
+                        return res.json(err)
+                    } else {
+                        res.json(spot);
+                    }
+                });
+            }
+
+        });
+
     });
 
     router.put('/spots/:id', isLoggedIn, userRoles.can('user'), function(req, res, next) {
