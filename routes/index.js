@@ -24,6 +24,10 @@ module.exports = function(router, passport) {
         res.render('home');
     });
 
+    router.get('/test', function(req, res, next) {
+        res.json({"test" : "test"})
+    });
+
     router.get('/registreren', function(req, res, next) {
         res.render('signup');
     });
