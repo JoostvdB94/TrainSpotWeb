@@ -112,8 +112,8 @@ module.exports = function(router, io, passport, userRoles) {
         image.save(function(err, image, count) {
             if (err) {
                 res.statusCode = 404;
-                res.json(err);
-                return;
+                return res.json(err);
+                
             }
             var spot = new Spot({
                 name: req.body.name,
@@ -127,29 +127,8 @@ module.exports = function(router, io, passport, userRoles) {
             spot.save(function(err, spot, count) {
                 if (err) {
                     res.statusCode = 404;
-                    res.json(err);
-                    return;
+                    return res.json(err)
                 } else {
-                    var pushUrl = req.protocol + '://compuplex.nl:10030/send';
-                    request({
-                            method: 'POST',
-                            url: pushUrl,
-                            json: true,
-                            body: {
-                                "android": {
-                                    "collapseKey": "optional",
-                                    "data": {
-                                        "message": "[spot added]"
-                                    }
-                                }
-                            }
-                        },
-                        function(error, response, body) {
-                            if (error) {
-                                throw error;
-                            }
-                        });
-                    io.to('spotRoom').emit('spot added', spot);
                     res.json(spot);
                 }
             });
@@ -162,8 +141,8 @@ module.exports = function(router, io, passport, userRoles) {
             _id: req.params.id
         }, req.body, function(err, spot) {
             if (err) {
-                res.json(err);
-                return;
+                return res.json(err);
+                
             } else {
                 res.json(spot);
             }
@@ -175,8 +154,8 @@ module.exports = function(router, io, passport, userRoles) {
         Spot.findById(req.params.id, function(err, spot) {
             if (err) {
                 res.statusCode = 404;
-                res.json(err);
-                return;
+                return res.json(err);
+                
             } else {
                 res.json(spot);
             }
@@ -279,8 +258,8 @@ module.exports = function(router, io, passport, userRoles) {
         location.save(function(err, location, count) {
             if (err) {
                 res.statusCode = 404;
-                res.json(err);
-                return;
+                return res.json(err);
+                
             } else {
                 res.json(location);
             }
@@ -291,8 +270,8 @@ module.exports = function(router, io, passport, userRoles) {
         Location.findById(req.params.id, function(err, location) {
             if (err) {
                 res.statusCode = 404;
-                res.json(err);
-                return;
+                return res.json(err);
+                
             } else {
                 res.json(location);
             }
