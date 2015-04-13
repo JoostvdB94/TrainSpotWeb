@@ -22,6 +22,8 @@ module.exports = function(router, io, passport, userRoles) {
         })
     }
 
+
+
     router.get('/updateLocationsManually', function(req, res, next) {
         updateLocations();
         res.json({
