@@ -161,7 +161,7 @@ module.exports = function(router, io, passport, userRoles) {
             } else {
                 res.json(spot);
             }
-        });
+        }).populate("owner image");
     });
 
     router.get("/spots", function(req, res, next) {
